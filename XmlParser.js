@@ -1,0 +1,130 @@
+module.exports = (function () {
+    "use strict";
+    var $o = require("./core.js");
+    var sax = require("sax");
+
+    var parser = $o.Object.extend({
+        saxParser: null,
+        currentNode: null,
+        nodeStack: null, // stack of nodes
+
+        // oPar.strict: Whenever or not to use a strict parser
+        // oPar.noTrim : Do not trimtext and comment nodes
+        // oPar.noNormalizeWhitespaces: Do not normalize whitespaces in text
+        // oPar.lowercaseTagnames: Turn the tagsNames to lowercase
+        // oPar.noTracing: Disable position tracing of sax
+        // oPar.strictEntities: Allow only predefined entities
+        create: function (oPar) {
+            this.nodeStack = [];
+
+            this.saxParser = sax.parser(!!oPar.strict, {
+                trim: !oPar.noTrim, 
+                normalize: !oPar.noNormalizeWhitespaces,
+                lowercase: !!oPar.lowercaseTagnames, 
+                xmlns: !oPar.noNamespaces, 
+                position: !oPar.noTracing, 
+                strictEntities: !!oPar.strictEntities
+            });
+
+            this._createEvents();
+        },
+        _createEvents: function() {
+            var self = this;
+            this.saxParser.onopentag = function (n) {
+                var node = new XmlNode(n);
+                self.currentNode.addNode(node);
+                
+                self.pushStack(node);
+            };
+            this.saxParser.onclosetag = function () {
+                self.popStack();
+            };
+            this.saxParser.onattribute = function (attr) {
+                if (attr.prefix === "xmlns") return; // ignore namespace attributes
+                self.currentNode.addAttribute(attr);
+            };
+            this.saxParser.ontext = function (txt) {
+                self.currentNode.setText(txt);
+            };
+        },
+        parse: function (str) {
+            
+            this.nodeStack.length = 0;
+            this.root = new Node();
+            this.pushStack(this.root);
+
+            this.saxParser.write(str.toString());
+            this.saxParser.close();
+
+            return this.root;
+        },
+        pushStack: function(node) {
+        	this.currentNode = node;
+        	this.nodeStack.push(this.currentNode);
+        	return node;
+        },
+        popStack: function() {
+        	return this.nodeStack.pop();
+        }
+    });
+    
+    // generic node
+    var Node = $o.Object.extend({
+        children: null,    // dictionary of children nodes
+        attributes: null,  // dictionary of attributes
+        create: function () {
+            this.children = {};
+            this.attributes = {};
+        },
+        addAttribute: function(attr) {
+
+            this.attributes[attr.local] = attr.value;
+        },
+        addNode: function(n) {
+            if(!this.children[n.localName])
+            	this.children[n.localName] = [];
+            this.children[n.localName].push(n);
+            return n;
+        },
+        // TODO doesnt work yet, check example test.js:SOAP1.xml
+        path: function(arr) {
+        	
+        	function next(parNode, left) {
+        		if(left.length === 0) return parNode;
+        		var name = left.shift();
+        		var arr = parNode.children[name] || [];
+	        	return arr.map(function(n) {
+        			return next(n, left);
+        		});
+        	}
+
+        	
+        	return next(this, arr);
+        }
+    });
+    
+    var XmlNode = Node.extend({
+    	name: "",
+    	ns: "",
+    	prefix: "",
+    	localName: "",
+    	text: "",
+
+    	_n: null,
+        create: function (n) {
+            _super(XmlNode).create.call(this);
+            this._n = n;
+
+            this.name = n.name;
+            this.prefix = n.prefix;
+            this.localName = n.local;
+            this.ns = n.ns[this.prefix];
+            
+        },
+        setText: function(txt) {
+        	this.text = txt;
+        }
+    });
+    
+    return parser;
+})();
