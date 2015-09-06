@@ -24,7 +24,6 @@ module.exports = (function () {
 				position: !oPar.noTracing, 
 				strictEntities: !!oPar.strictEntities
 			});
-			console.log(this.saxParser.opt);
 
 			this._createEvents();
 		},
@@ -117,6 +116,11 @@ module.exports = (function () {
 
 			if(ignoreCase) next_caseinvar(this, arr); else next(this, arr);
 			return nodes;
+		},
+		visit: function(fn) {
+			fn(this);
+			for(var k in this.children)
+				this.children[k].visit(fn);
 		}
 	});
 	
