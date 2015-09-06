@@ -6,4 +6,5 @@ var p = new XmlParser({ strict: true });
 var xml = fs.readFileSync("./SOAP1.xml");
 var xmlNode = p.parse(xml);
 
-console.log(xmlNode.path(["Envelope", "Body", "GetStockPriceResponse", "Price"]));
+var nodes = xmlNode.path(["Envelope", "Body", "GetstockpriceResponse", "Price"], true);
+console.log(nodes.map(function(n) { return n.text; }));
