@@ -23,11 +23,9 @@ module.exports = (function () {
         var superClass = this.prototype;
         proto.superClass = superClass;
         for (var n in def) {
-            var item = def[n];
-            if ((item instanceof Function) && (this.prototype[n])) item.$inherited = superClass;
-            proto[n] = item;
+            proto[n] = def[n];
         }
-        proto.tag = null;
+        
         proto.classDef = classDef;
         classDef.prototype = proto;
         //Give this new class the same static extend method
