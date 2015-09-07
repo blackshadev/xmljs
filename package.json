@@ -1,14 +1,28 @@
 {
   "name": "xmljs",
-  "version": "1.0.0",
+  "version": "0.1.0",
+  "author": "Vincent Hagen <vinnie_hagen@hotmail.com>",
   "description": "A small and simple package which can traverse a XML document",
   "main": "index.js",
   "scripts": {
     "test": "node example/test.js"
   },
-  "author": "Vincent",
+  "directories": {
+    "example": "example"
+  },
   "license": "ISC",
   "dependencies": {
     "sax": "^1.1.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:blackshadev/xmljs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/blackshadev/xmljs/issues"
+  },
+  "homepage": "https://github.com/blackshadev/xmljs",
+  "keywords": [
+    "xml", "xmljs", "soap"
+  ]
 }
