@@ -48,7 +48,7 @@ module.exports = (function () {
 			};
 			this.saxParser.ontext = function (txt) {
 				self.currentNode.setText(txt);
-			};,
+			};
 			this.saxParser.onerror = function(err) {
 				self.errors.push(err);
 				if(!self.haltOnError)
@@ -108,19 +108,20 @@ module.exports = (function () {
 			var nodes = [];
 
 			function next(parNode, left) {
+
 				if(left.length === 0) { nodes.push(parNode); return; }
-				var name = left.shift();
+				var name = left[0];
 				var arr = parNode.children[name] || [];
 				
-				arr.forEach(function(n) { next(n, left); });
+				arr.forEach(function(n) { next(n, left.slice(1)); });
 			}
 
 			function next_caseinvar(parNode, left) {
 				if(left.length === 0) { nodes.push(parNode); return; }
-				var name = left.shift();
+				var name = left[0];
 				var arr = parNode.children_lower[name.toLowerCase()] || [];
 				
-				arr.forEach(function(n) { next_caseinvar(n, left); });
+				arr.forEach(function(n) { next_caseinvar(n, left.slice(1)); });
 			}
 
 			if(ignoreCase) next_caseinvar(this, arr); else next(this, arr);
