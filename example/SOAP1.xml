@@ -10,6 +10,7 @@ soap:encodingStyle="http://www.w3.org/2001/12/soap-encoding">
     <m:GetStockPriceResponse>
       <m:Price>30.2</m:Price>
     </m:GetStockPriceResponse>
+    
   </soap:Body>
 
 </soap:Envelope>

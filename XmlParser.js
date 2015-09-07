@@ -25,7 +25,7 @@ module.exports = (function () {
 				strictEntities: !!oPar.strictEntities
 			});
 			this.errors = [];
-			this.haltOnError = !!oPar.haltOnError;
+			this.continueOnError = !!oPar.continueOnError;
 
 		
 			this._createEvents();
@@ -51,20 +51,24 @@ module.exports = (function () {
 			};
 			this.saxParser.onerror = function(err) {
 				self.errors.push(err);
-				if(!self.haltOnError)
+				if(self.continueOnError)
 					self.saxParser.resume();
 			};
 		},
-		parse: function (str) {
+		parseString: function (str, cb) {
 			
 			this.nodeStack.length = 0;
+			this.errors.length = 0;
 			this.root = new Node();
 			this.currentNode = this.root;
 
 			this.saxParser.write(str.toString());
 			this.saxParser.close();
 
-			return this.root;
+			var err = this.errors.length === 0 ? null : this.errors;
+			cb(err, this.root);
+
+			return this.errors.length === 0;
 		},
 		pushStack: function(node) {
 			this.nodeStack.push(this.currentNode);
