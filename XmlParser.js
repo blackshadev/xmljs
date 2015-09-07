@@ -24,9 +24,13 @@ module.exports = (function () {
 				position: !oPar.noTracing, 
 				strictEntities: !!oPar.strictEntities
 			});
+			this.errors = [];
+			this.haltOnError = !!oPar.haltOnError;
 
+		
 			this._createEvents();
 		},
+
 		_createEvents: function() {
 			var self = this;
 			this.saxParser.onopentag = function (n) {
@@ -44,6 +48,11 @@ module.exports = (function () {
 			};
 			this.saxParser.ontext = function (txt) {
 				self.currentNode.setText(txt);
+			};,
+			this.saxParser.onerror = function(err) {
+				self.errors.push(err);
+				if(!self.haltOnError)
+					self.saxParser.resume();
 			};
 		},
 		parse: function (str) {
