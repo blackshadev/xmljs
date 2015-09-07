@@ -1,4 +1,4 @@
-﻿var XmlParser = require("./XmlParser.js");
+﻿var XmlParser = require("../XmlParser.js");
 var fs = require("fs");
 
 
