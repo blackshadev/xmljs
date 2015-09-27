@@ -14,7 +14,11 @@ vows.describe("xml path").addBatch({
                 __dirname + "\\simple.xml",
                 { encoding: "utf8" },
                 function(err, dat) {
-                    if(err) throw err;
+                    if(err) {
+                         self.callback(err, null);
+                         return;
+                    }
+
                     parser.parseString(dat, self.callback);
                 }
             );
@@ -60,7 +64,11 @@ vows.describe("xml path").addBatch({
                 __dirname + "\\more.xml",
                 { encoding: "utf8" },
                 function(err, dat) {
-                    if(err) throw err;
+                    if(err) {
+                         self.callback(err, null);
+                         return;
+                    }
+
                     parser.parseString(dat, self.callback);
                 }
             );
@@ -82,7 +90,6 @@ vows.describe("xml path").addBatch({
 
             var nodes = node.path(["Envelope", "BoDy", "GetstockpriceResponse", "Price"], true);
 
-            console.log(nodes);
             assert.ok(
                 nodes.length === 3 &&
                 nodes[0].text === "34.5" &&
