@@ -88,6 +88,24 @@ module.exports = (function () {
 		}
 	});
 
+	var Attribute = $o.Object.extend({
+		name: null,
+		value: null,
+		create: function(name, value) {
+			this.name = name;
+			this.value = value;
+		}
+	});
+
+	var XmlAttribute = Attribute.extend({
+		ns: null,
+		create: function(xml) {
+			_super(XmlAttribute).create.call(this, xml.local, xml.value);
+			this.ns = xml.namespace;
+		}
+	});
+
+
 	// generic node
 	var Node = $o.Object.extend({
 		children: null,    // dictionary of children nodes
@@ -103,11 +121,14 @@ module.exports = (function () {
 
 		},
 		getAttribute: function(attr, ignoreCase) {
-			return ignoreCase ? this.attributes_lower[attr.toLowerCase()] : this.attributes[attr];
+			return ignoreCase ?
+				this.attributes_lower[attr.toLowerCase()]
+			  : this.attributes[attr];
 		},
-		addAttribute: function(attr) {
-			this.attributes[attr.local] = attr.value;
-			this.attributes_lower[attr.local.toLowerCase()] = attr.value;
+		addAttribute: function(xmlAttr) {
+			var attr = new XmlAttribute(xmlAttr);
+			this.attributes[attr.name] = attr;
+			this.attributes_lower[attr.name.toLowerCase()] = attr;
 		},
 		addNode: function(n) {
 			if(!this.children[n.localName])
@@ -120,7 +141,7 @@ module.exports = (function () {
 
 			return n;
 		},
-		// TODO doesnt work yet, check example test.js:SOAP1.xml
+
 		path: function(arr, ignoreCase) {
 			var nodes = [];
 

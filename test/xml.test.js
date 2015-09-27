@@ -7,101 +7,80 @@ var vows = require("vows"),
 vows.describe("xml path").addBatch({
     simple: {
         topic: function() {
-            var parser = new XmlParser({ strict: true });
-
-            var self = this;
             fs.readFile(
                 __dirname + "/simple.xml",
                 { encoding: "utf8" },
-                function(err, dat) {
-                    if(err) {
-                         self.callback(err, null);
-                         return;
-                    }
-
-                    parser.parseString(dat, self.callback);
-                }
+                this.callback
             );
         },
-        caseSenstativePath: function(err, node) {
-            if(err)
-                throw err;
+        parse: {
+            topic: function(dat) {
+                var parser = new XmlParser({ strict: true });
+                parser.parseString(dat, this.callback);
+            },
+            caseSenstativePath: function(node) {
 
-            var nodes = node.path(["Envelope", "Body", "GetStockPriceResponse", "Price"]);
+                var nodes = node.path(["Envelope", "Body", "GetStockPriceResponse", "Price"]);
 
-            assert.ok(
-                nodes.length === 1 &&
-                nodes[0].text === "34.5" &&
-                nodes[0].getAttribute("includedVat") === "1.21"
-            );
-        },
-        caseInsenstativePath: function(err, node) {
-            if(err)
-                throw err;
+                assert.ok(
+                    nodes.length === 1 &&
+                    nodes[0].text === "34.5" &&
+                    nodes[0].getAttribute("includedVat") !== null &&
+                    nodes[0].getAttribute("includedVat").value === "1.21"
+                );
+            },
+            caseInsenstativePath: function(node) {
+                var nodes = node.path(["Envelope", "BoDy", "GetstockpriceResponse", "Price"], true);
 
-            var nodes = node.path(["Envelope", "BoDy", "GetstockpriceResponse", "Price"], true);
-
-            assert.ok(
-                nodes.length === 1 &&
-                nodes[0].text === "34.5" &&
-                nodes[0].getAttribute("Includedvat", true) === "1.21"
-            );
-        },
-        invalidPath: function(err, node) {
-            if(err)
-                throw err;
-
-            var nodes = node.path(["something", "totally", 'rubbisch'], true);
-            assert.ok(nodes.length === 0)
+                assert.ok(
+                    nodes.length === 1 &&
+                    nodes[0].text === "34.5" &&
+                    nodes[0].getAttribute("includedVat", true) !== null &&
+                    nodes[0].getAttribute("includedVat", true).value === "1.21"
+                );
+            },
+            invalidPath: function(node) {
+                var nodes = node.path(["something", "totally", 'rubbisch'], true);
+                assert.ok(nodes.length === 0)
+            }
         }
     },
     more: {
         topic: function() {
-            var parser = new XmlParser({ strict: true });
-
-            var self = this;
             fs.readFile(
                 __dirname + "/more.xml",
                 { encoding: "utf8" },
-                function(err, dat) {
-                    if(err) {
-                         self.callback(err, null);
-                         return;
-                    }
-
-                    parser.parseString(dat, self.callback);
-                }
-            );
-
-        },
-        caseSenstativePath: function(err, node) {
-            if(err) throw err;
-
-            var nodes = node.path(["Envelope", "Body", "GetStockPriceResponse", "Price"]);
-
-            assert.ok(
-                nodes.length === 2 &&
-                nodes[0].text === "34.5" &&
-                nodes[1].text === "35.5"
+                this.callback
             );
         },
-        caseInsenstativePath: function(err, node) {
-            if(err) throw err;
+        parse: {
+            topic: function(dat) {
+                var parser = new XmlParser({ strict: true });
+                parser.parseString(dat, this.callback);
+            },
+            caseSenstativePath: function(node) {
+                var nodes = node.path(["Envelope", "Body", "GetStockPriceResponse", "Price"]);
 
-            var nodes = node.path(["Envelope", "BoDy", "GetstockpriceResponse", "Price"], true);
+                assert.ok(
+                    nodes.length === 2 &&
+                    nodes[0].text === "34.5" &&
+                    nodes[1].text === "35.5"
+                );
+            },
+            caseInsenstativePath: function(node) {
+                var nodes = node.path(["Envelope", "BoDy", "GetstockpriceResponse", "Price"], true);
 
-            assert.ok(
-                nodes.length === 3 &&
-                nodes[0].text === "34.5" &&
-                nodes[1].text === "35.5" &&
-                nodes[2].text === "36.5"
-            );
-        },
-        invalidPath: function(err, node) {
-            if(err) throw err;
-
-            var nodes = node.path(["something", "totally", 'rubbisch'], true);
-            assert.ok(nodes.length === 0)
+                assert.ok(
+                    nodes.length === 3 &&
+                    nodes[0].text === "34.5" &&
+                    nodes[1].text === "35.5" &&
+                    nodes[2].text === "36.5"
+                );
+            },
+            invalidPath: function(node) {
+                var nodes = node.path(["something", "totally", 'rubbisch'], true);
+                assert.ok(nodes.length === 0)
+            }
         }
     }
 }).export(module);
