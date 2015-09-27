@@ -11,7 +11,7 @@ vows.describe("xml path").addBatch({
 
             var self = this;
             fs.readFile(
-                __dirname + "\\simple.xml",
+                __dirname + "/simple.xml",
                 { encoding: "utf8" },
                 function(err, dat) {
                     if(err) {
@@ -61,7 +61,7 @@ vows.describe("xml path").addBatch({
 
             var self = this;
             fs.readFile(
-                __dirname + "\\more.xml",
+                __dirname + "/more.xml",
                 { encoding: "utf8" },
                 function(err, dat) {
                     if(err) {
