@@ -6,6 +6,7 @@ module.exports = (function () {
 	var parser = $o.Object.extend({
 		saxParser: null,
 		currentNode: null,
+		attributes: null, // storage for attributes for the next node
 		nodeStack: null, // stack of nodes
 
 		// oPar.strict: Whenever or not to use a strict parser
@@ -17,17 +18,18 @@ module.exports = (function () {
 		create: function (oPar) {
 			this.nodeStack = [];
 			this.saxParser = sax.parser(!!oPar.strict, {
-				trim: !oPar.noTrim, 
+				trim: !oPar.noTrim,
 				normalize: !oPar.noNormalizeWhitespaces,
-				lowercase: !!oPar.lowercaseTagnames, 
-				xmlns: !oPar.noNamespaces, 
-				position: !oPar.noTracing, 
+				lowercase: !!oPar.lowercaseTagnames,
+				xmlns: !oPar.noNamespaces,
+				position: !oPar.noTracing,
 				strictEntities: !!oPar.strictEntities
 			});
 			this.errors = [];
+			this.attributes = [];
 			this.continueOnError = !!oPar.continueOnError;
 
-		
+
 			this._createEvents();
 		},
 
@@ -35,8 +37,12 @@ module.exports = (function () {
 			var self = this;
 			this.saxParser.onopentag = function (n) {
 				var node = new XmlNode(n);
+				self.attributes.forEach(function(attr) {
+					node.addAttribute(attr);
+				});
 				self.currentNode.addNode(node);
-				
+
+				self.attributes.length = 0;
 				self.pushStack(node);
 			};
 			this.saxParser.onclosetag = function () {
@@ -44,7 +50,7 @@ module.exports = (function () {
 			};
 			this.saxParser.onattribute = function (attr) {
 				if (attr.prefix === "xmlns") return; // ignore namespace attributes
-				self.currentNode.addAttribute(attr);
+				self.attributes.push(attr);
 			};
 			this.saxParser.ontext = function (txt) {
 				self.currentNode.setText(txt);
@@ -56,7 +62,7 @@ module.exports = (function () {
 			};
 		},
 		parseString: function (str, cb) {
-			
+
 			this.nodeStack.length = 0;
 			this.errors.length = 0;
 			this.root = new Node();
@@ -73,7 +79,7 @@ module.exports = (function () {
 		pushStack: function(node) {
 			this.nodeStack.push(this.currentNode);
 			this.currentNode = node;
-			
+
 			return node;
 		},
 		popStack: function() {
@@ -81,20 +87,27 @@ module.exports = (function () {
 			return this.currentNode;
 		}
 	});
-	
+
 	// generic node
 	var Node = $o.Object.extend({
 		children: null,    // dictionary of children nodes
 		children_lower: null,
 		attributes: null,  // dictionary of attributes
+		attributes_lower: null,  // dictionary of attributes
 		create: function () {
 			this.children = {};
 			this.children_lower = {};
 
 			this.attributes = {};
+			this.attributes_lower = {};
+
+		},
+		getAttribute: function(attr, ignoreCase) {
+			return ignoreCase ? this.attributes_lower[attr.toLowerCase()] : this.attributes[attr];
 		},
 		addAttribute: function(attr) {
 			this.attributes[attr.local] = attr.value;
+			this.attributes_lower[attr.local.toLowerCase()] = attr.value;
 		},
 		addNode: function(n) {
 			if(!this.children[n.localName])
@@ -116,7 +129,7 @@ module.exports = (function () {
 				if(left.length === 0) { nodes.push(parNode); return; }
 				var name = left[0];
 				var arr = parNode.children[name] || [];
-				
+
 				arr.forEach(function(n) { next(n, left.slice(1)); });
 			}
 
@@ -124,7 +137,7 @@ module.exports = (function () {
 				if(left.length === 0) { nodes.push(parNode); return; }
 				var name = left[0];
 				var arr = parNode.children_lower[name.toLowerCase()] || [];
-				
+
 				arr.forEach(function(n) { next_caseinvar(n, left.slice(1)); });
 			}
 
@@ -137,7 +150,7 @@ module.exports = (function () {
 				this.children[k].visit(fn);
 		}
 	});
-	
+
 	var XmlNode = Node.extend({
 		name: "",
 		ns: "",
@@ -160,6 +173,6 @@ module.exports = (function () {
 			this.text = txt;
 		}
 	});
-	
+
 	return parser;
 })();
