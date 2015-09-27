@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/blackshadev/xmljs.svg?branch=master)](https://travis-ci.org/blackshadev/xmljs)
+
 A small and simple package which can traverse a XML document. Uses sax-js to parse xml.
 
 The goal of the package is a easy way to navigate and search through xml documents. This package makes is easier to extract data from XML documents.
@@ -15,7 +17,7 @@ var xmlNode = p.parseString(xml, function(err, xmlNode) {
 		console.error(err);
 		return;
 	}
-	var nodes = xmlNode.path(["Envelope", "Body", "GetstockpriceResponse", "Price"], true);	
+	var nodes = xmlNode.path(["Envelope", "Body", "GetstockpriceResponse", "Price"], true);
 	console.log(nodes.map(function(n) { return n.text; }));
 });
 ```
