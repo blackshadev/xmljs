@@ -87,6 +87,7 @@ module.exports = (function () {
 			return this.currentNode;
 		}
 	});
+	parser.isXmlNode = function(n) { return n instanceof Node; };
 
 	var Attribute = $o.Object.extend({
 		name: null,
