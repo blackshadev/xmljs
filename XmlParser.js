@@ -91,10 +91,10 @@ module.exports = (function () {
 
 	var Attribute = $o.Object.extend({
 		name: null,
-		value: null,
+		text: null,
 		create: function(name, value) {
 			this.name = name;
-			this.value = value;
+			this.text = value;
 		}
 	});
 
