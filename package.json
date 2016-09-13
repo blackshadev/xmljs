@@ -1,6 +1,6 @@
 {
   "name": "xmljs",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "author": "Vincent Hagen <vinnie_hagen@hotmail.com>",
   "description": "A small and simple package which can traverse a XML document",
   "main": "index.js",

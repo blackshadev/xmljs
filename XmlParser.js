@@ -68,8 +68,12 @@ module.exports = (function () {
 			this.root = new Node();
 			this.currentNode = this.root;
 
-			this.saxParser.write(str.toString());
-			this.saxParser.close();
+			try {
+				this.saxParser.write(str.toString());
+				this.saxParser.close();
+			} catch(e) {
+				this.errors.push(e);
+			}
 
 			var err = this.errors.length === 0 ? null : this.errors;
 			cb(err, this.root);
